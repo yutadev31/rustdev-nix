@@ -9,6 +9,7 @@
   inputs,
   src,
   systems ? [ "x86_64-linux" ],
+  buildPackage ? true,
   packageAttrs ? { },
   devShellAttrs ? { },
   treefmtConfig ? { },
@@ -49,10 +50,14 @@ let
         config = resolve treefmtConfig args;
       };
 
-      package = mkPackage {
-        inherit pkgs src rustPlatform;
-        attrs = resolve packageAttrs args;
-      };
+      package =
+        if buildPackage then
+          mkPackage {
+            inherit pkgs src rustPlatform;
+            attrs = resolve packageAttrs args;
+          }
+        else
+          null;
 
       devShell = mkDevShell {
         inherit pkgs package rustToolchain;
@@ -67,9 +72,13 @@ let
   perSystem = genAttrs systems forSystem;
 in
 {
-  packages = genAttrs systems (system: {
-    default = perSystem.${system}.package;
-  });
+  packages =
+    if buildPackage then
+      genAttrs systems (system: {
+        default = perSystem.${system}.package;
+      })
+    else
+      { };
 
   devShells = genAttrs systems (system: {
     default = perSystem.${system}.devShell;
@@ -77,8 +86,18 @@ in
 
   formatter = genAttrs systems (system: perSystem.${system}.treefmt.config.build.wrapper);
 
-  checks = genAttrs systems (system: {
-    build = perSystem.${system}.package;
-    treefmt = perSystem.${system}.treefmt.config.build.check inputs.self;
-  });
+  checks = genAttrs systems (
+    system:
+    {
+      treefmt = perSystem.${system}.treefmt.config.build.check inputs.self;
+    }
+    // (
+      if buildPackage then
+        {
+          build = perSystem.${system}.package;
+        }
+      else
+        { }
+    )
+  );
 }
