@@ -60,7 +60,7 @@ let
       };
     in
     {
-      inherit package devShell;
+      inherit treefmt package devShell;
     };
 
   perSystem = genAttrs systems forSystem;
