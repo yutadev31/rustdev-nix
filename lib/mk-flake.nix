@@ -10,6 +10,7 @@
   src,
   systems ? [ "x86_64-linux" ],
   buildPackage ? true,
+  manifestPath ? "Cargo.toml",
   packageAttrs ? { },
   devShellAttrs ? { },
   treefmtConfig ? { },
@@ -53,7 +54,12 @@ let
       package =
         if buildPackage then
           mkPackage {
-            inherit pkgs src rustPlatform;
+            inherit
+              pkgs
+              src
+              rustPlatform
+              manifestPath
+              ;
             attrs = resolve packageAttrs args;
           }
         else
