@@ -22,7 +22,7 @@ let
   forSystem =
     system:
     let
-      pkgs = import (resolve inputs.nixpkgs nixpkgs) {
+      pkgs = import nixpkgs {
         inherit system;
         overlays = [ rust-overlay.overlays.default ];
       };
