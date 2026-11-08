@@ -3,11 +3,12 @@
 
   inputs = {
     rust-overlay.url = "github:oxalica/rust-overlay";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
-  outputs = { rust-overlay, ... }: {
+  outputs = { rust-overlay, treefmt-nix, ... }: {
     lib = import ./lib {
-      inherit rust-overlay;
+      inherit rust-overlay treefmt-nix;
     };
   };
 }

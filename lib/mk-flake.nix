@@ -1,6 +1,7 @@
 {
   mkPackage,
   mkDevShell,
+  mkTreefmt,
   rust-overlay,
 }:
 {
@@ -9,6 +10,7 @@
   systems ? [ "x86_64-linux" ],
   packageAttrs ? { },
   devShellAttrs ? { },
+  treefmtConfig ? { },
   extraPackages ? [ ],
 }:
 let
@@ -41,6 +43,11 @@ let
         inherit rustToolchain rustPlatform;
       };
 
+      treefmt = mkTreefmt {
+        inherit pkgs rustToolchain;
+        config = resolve treefmtConfig args;
+      };
+
       package = mkPackage {
         inherit pkgs src rustPlatform;
         attrs = resolve packageAttrs args;
@@ -48,7 +55,7 @@ let
 
       devShell = mkDevShell {
         inherit pkgs package rustToolchain;
-        extraPackages = resolve extraPackages args;
+        extraPackages = [ treefmt.config.build.wrapper ] ++ resolve extraPackages args;
         attrs = resolve devShellAttrs args;
       };
     in
@@ -67,7 +74,10 @@ in
     default = perSystem.${system}.devShell;
   });
 
+  formatter = genAttrs systems (system: perSystem.${system}.treefmt.config.build.wrapper);
+
   checks = genAttrs systems (system: {
     build = perSystem.${system}.package;
+    treefmt = perSystem.${system}.treefmt.config.build.check inputs.self;
   });
 }

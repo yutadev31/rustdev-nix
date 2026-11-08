@@ -1,12 +1,25 @@
-{ rust-overlay }:
+{ rust-overlay, treefmt-nix }:
 let
   mkPackage = import ./mk-package.nix;
   mkDevShell = import ./mk-dev-shell.nix;
+  mkTreefmt = import ./mk-treefmt.nix {
+    inherit treefmt-nix;
+  };
 
   mkFlake = import ./mk-flake.nix {
-    inherit mkPackage mkDevShell rust-overlay;
+    inherit
+      mkPackage
+      mkDevShell
+      mkTreefmt
+      rust-overlay
+      ;
   };
 in
 {
-  inherit mkPackage mkDevShell mkFlake;
+  inherit
+    mkPackage
+    mkDevShell
+    mkTreefmt
+    mkFlake
+    ;
 }
