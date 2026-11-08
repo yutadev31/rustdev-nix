@@ -1,4 +1,8 @@
-{ rust-overlay, treefmt-nix }:
+{
+  nixpkgs,
+  rust-overlay,
+  treefmt-nix,
+}:
 let
   mkPackage = import ./mk-package.nix;
   mkDevShell = import ./mk-dev-shell.nix;
@@ -11,6 +15,7 @@ let
       mkPackage
       mkDevShell
       mkTreefmt
+      nixpkgs
       rust-overlay
       ;
   };

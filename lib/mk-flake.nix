@@ -2,6 +2,7 @@
   mkPackage,
   mkDevShell,
   mkTreefmt,
+  nixpkgs,
   rust-overlay,
 }:
 {
@@ -14,14 +15,14 @@
   extraPackages ? [ ],
 }:
 let
-  inherit (inputs.nixpkgs.lib) genAttrs;
+  inherit (nixpkgs.lib) genAttrs;
 
   resolve = value: args: if builtins.isFunction value then value args else value;
 
   forSystem =
     system:
     let
-      pkgs = import inputs.nixpkgs {
+      pkgs = import (resolve inputs.nixpkgs nixpkgs) {
         inherit system;
         overlays = [ rust-overlay.overlays.default ];
       };
