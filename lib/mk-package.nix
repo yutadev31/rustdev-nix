@@ -1,10 +1,11 @@
 {
   pkgs,
   src,
+  rustPlatform ? pkgs.rustPlatform,
   attrs ? { },
 }:
 let
-  cargo = builtins.fromTOML (builtins.readFile src + "Cargo.toml");
+  cargo = builtins.fromTOML (builtins.readFile (src + "/Cargo.toml"));
 
   defaults = {
     pname = cargo.package.name;
@@ -12,7 +13,7 @@ let
 
     inherit src;
 
-    cargoLock.lockFile = src + "Cargo.lock";
+    cargoLock.lockFile = src + "/Cargo.lock";
   };
 in
-pkgs.rustPlatform.buildRustPackage (pkgs.lib.recursiveUpdate defaults attrs)
+rustPlatform.buildRustPackage (pkgs.lib.recursiveUpdate defaults attrs)
