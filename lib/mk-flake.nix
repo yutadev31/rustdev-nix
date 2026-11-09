@@ -1,5 +1,6 @@
 {
   mkPackage,
+  mkChecks,
   mkDevShell,
   mkTreefmt,
   nixpkgs,
@@ -65,6 +66,16 @@ let
         else
           null;
 
+      cargoChecks = mkChecks {
+        inherit
+          pkgs
+          src
+          rustToolchain
+          rustPlatform
+          ;
+        attrs = resolve packageAttrs args;
+      };
+
       devShell = mkDevShell {
         inherit pkgs package rustToolchain;
         extraPackages = [ treefmt.config.build.wrapper ] ++ resolve extraPackages args;
@@ -72,7 +83,12 @@ let
       };
     in
     {
-      inherit treefmt package devShell;
+      inherit
+        treefmt
+        package
+        devShell
+        cargoChecks
+        ;
     };
 
   perSystem = genAttrs systems forSystem;
@@ -97,6 +113,7 @@ in
     {
       treefmt = perSystem.${system}.treefmt.config.build.check inputs.self;
     }
+    // perSystem.${system}.cargoChecks
     // (
       if buildPackage then
         {
